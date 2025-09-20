@@ -38,4 +38,9 @@ export const api = {
   base: API_BASE,
 };
 
+export async function getCourseById<T = any>(id: string): Promise<T> {
+  if (!id) throw new Error('Course id is required');
+  return api.get<T>(`/courses/${id}`);
+}
+
 export default api;

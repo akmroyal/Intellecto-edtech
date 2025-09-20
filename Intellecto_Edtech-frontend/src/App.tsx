@@ -19,6 +19,8 @@ import ProfilePage from "./pages/ProfilePage";
 import CreateNewCourse from "./pages/CreateNewCourse";
 import TestYourKnowledge from "./pages/TestYourKnowledge";
 import CourseStartPage from "./pages/CourseStartPage";
+import Courses from "./pages/Courses";
+import CoursePage from "./pages/Course";
 import MyProgressPage from "./pages/MyProgressPage";
 import SkillGapAnalyzer from "./pages/SkillGapAnalyzer";
 
@@ -84,6 +86,9 @@ const App = () => (
           <Route path="/create-course" element={<CreateNewCourse />} />
     
           <Route path="/course-start" element={<CourseStartPage />} />
+          <Route path="/course-start/:id" element={<CourseStartPage />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/course" element={<CoursePage />} />
           
           <Route path="/my-progress" element={<MyProgressPage />} />
 

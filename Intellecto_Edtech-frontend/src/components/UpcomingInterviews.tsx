@@ -148,7 +148,7 @@ export const UpcomingInterviews: React.FC = () => {
               <button
                 className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary-hover transition-colors text-sm"
                 onClick={() => {
-                  return navigate(`/courses/${course.id}`, { state: { course } });
+                  return navigate(`/course-start/${course.id}`, { state: { course } });
                 }}
               >
                 <Video className="w-4 h-4" />

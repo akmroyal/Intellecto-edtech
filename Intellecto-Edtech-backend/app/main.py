@@ -9,7 +9,8 @@ app = FastAPI(title="Intellecto EdTech API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    # Do not allow credentials when using wildcard origin — browsers block this combination.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

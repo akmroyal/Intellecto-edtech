@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +15,20 @@ interface Message {
     timestamp: Date;
 }
 
+import { getCourseById } from '@/lib/api';
+
+interface Course {
+    id: string;
+    title?: string;
+    description?: string;
+    estimated_duration?: number;
+    level?: string;
+}
+
 const CourseStartPage = () => {
     const navigate = useNavigate();
+    const params = useParams();
+    const location = useLocation();
     const [isRecording, setIsRecording] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -32,6 +44,9 @@ const CourseStartPage = () => {
     const [courseProgress, setCourseProgress] = useState(25);
     const [currentTopic, setCurrentTopic] = useState('Introduction to React Components');
     const [sessionTime, setSessionTime] = useState(0);
+    const [course, setCourse] = useState<Course | null>(null);
+    const [loadingCourse, setLoadingCourse] = useState(false);
+    const [courseError, setCourseError] = useState<string | null>(null);
 
     // Session timer
     useEffect(() => {
@@ -77,6 +92,41 @@ const CourseStartPage = () => {
         // Here you would integrate speech-to-text functionality
     };
 
+    // Fetch course by id or use location.state.course
+    useEffect(() => {
+        const idFromParams = params.id || (location.state && (location.state as any).course?.id);
+        if (!idFromParams) return; // nothing to fetch
+
+        let cancelled = false;
+        const fetchCourse = async () => {
+            setLoadingCourse(true);
+            setCourseError(null);
+            try {
+                const data = await getCourseById(idFromParams as string);
+                if (cancelled) return;
+                setCourse(data as Course);
+                if ((data as any).title) setCurrentTopic((data as any).title);
+            } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                setCourseError(msg || 'Failed to load course');
+            } finally {
+                if (!cancelled) setLoadingCourse(false);
+            }
+        };
+
+        // If location.state already had course, use it immediately
+        if (location.state && (location.state as any).course) {
+            const c = (location.state as any).course as Course;
+            setCourse(c);
+            if (c.title) setCurrentTopic(c.title);
+        }
+
+        fetchCourse();
+        return () => {
+            cancelled = true;
+        };
+    }, [params.id, location.state]);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 relative overflow-hidden flex flex-col">
             {/* Animated Background Icons */}
@@ -103,7 +153,7 @@ const CourseStartPage = () => {
                         </Button>
                         <div>
                             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                                {currentTopic}
+                                {currentTopic}{loadingCourse ? ' (loading...)' : ''}
                             </h1>
                             <p className="text-muted-foreground text-sm">Interactive Learning Session</p>
                         </div>
@@ -127,6 +177,9 @@ const CourseStartPage = () => {
 
             {/* Main Content */}
             <div className="relative z-10 p-6 flex-1 overflow-auto">
+                {courseError && (
+                    <div className="mb-4 text-sm text-red-600">Failed to load course: {courseError}</div>
+                )}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-full">
                     {/* Left Side - AI Teacher Bot */}
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-elegant h-fit">

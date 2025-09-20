@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import api from '@/lib/api';
 import { auth } from '@/components/auth/firebase';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Bell, Search, Settings, User, LogOut, Tag, Download, FileText } from 'lucide-react';
+import { Bell, Search, Settings, User, LogOut, Tag, Download, FileText, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 type Question = {
@@ -343,6 +343,13 @@ const TestYourKnowledge: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-lg hover:bg-accent transition-all duration-300 hover-scale"
+                title="Go back"
+              >
+                <ArrowLeft className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+              </button>
               <div className="gradient-primary p-2 rounded-lg">
                 <img src="/favicon.png" alt="Intellecto logo" className="w-8 h-8 object-contain" />
               </div>
