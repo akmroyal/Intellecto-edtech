@@ -1,5 +1,6 @@
 import React from 'react';
 import { Clock, User, Video } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Interview {
   id: string;
@@ -38,6 +39,7 @@ const interviews: Interview[] = [
   }
 ];
 
+
 const getTypeColor = (type: string) => {
   switch (type) {
     case 'technical':
@@ -52,16 +54,17 @@ const getTypeColor = (type: string) => {
 };
 
 export const UpcomingInterviews: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="glass rounded-xl p-6 animate-fade-up" style={{ animationDelay: '0.5s' }}>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-foreground">All Courses</h2>
         <span className="text-sm text-muted-foreground">{interviews.length} scheduled</span>
       </div>
-      
+
       <div className="space-y-4">
         {interviews.map((interview, index) => (
-          <div 
+          <div
             key={interview.id}
             className="flex items-center justify-between p-4 rounded-lg bg-card hover:bg-accent/50 transition-all duration-300 hover-lift border border-border animate-slide-right"
             style={{ animationDelay: `${0.6 + index * 0.1}s` }}
@@ -80,14 +83,23 @@ export const UpcomingInterviews: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="text-right">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-1">
                 <Clock className="w-4 h-4" />
                 <span>{interview.time}</span>
               </div>
               <div className="text-xs text-muted-foreground mb-2">{interview.duration}</div>
-              <button className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary-hover transition-colors text-sm">
+              <button
+                className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary-hover transition-colors text-sm"
+                onClick={()=> {
+                  return navigate('/course-start', {
+                    state: {
+                      topic: 'React Components',
+                      subject: 'Web Development'
+                    }
+                  });
+                }}>
                 <Video className="w-4 h-4" />
                 <span>Join</span>
               </button>
@@ -95,7 +107,7 @@ export const UpcomingInterviews: React.FC = () => {
           </div>
         ))}
       </div>
-      
+
       <div className="mt-6 pt-4 border-t border-border">
         <button className="w-full py-3 rounded-lg border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-500 hover-lift hover-scale">
           View All My Courses
