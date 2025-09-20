@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { api, createCourse, CourseCreateData } from "@/lib/api";
 import {
     Code,
     BookOpen,
@@ -39,6 +40,8 @@ const CreateNewCourse = () => {
     const [difficultyLevel, setDifficultyLevel] = useState("");
     const [learningGoals, setLearningGoals] = useState("");
     const [addTags, setTags] = useState("");
+    const [objectives, setObjectives] = useState("");
+    const [isCreating, setIsCreating] = useState(false);
 
     const subjects = [
         { id: "programming", name: "Programming", icon: Code },
@@ -63,14 +66,67 @@ const CreateNewCourse = () => {
         );
     };
 
-    const handleCreateCourse = () => {
+    const handleCreateCourse = async () => {
         if (!courseName || selectedSubjects.length === 0 || !duration || !difficultyLevel || !addTags) {
             toast.error("Please fill in all required fields");
             return;
         }
 
-        toast.success("Course created successfully!");
-        // Here you would typically send the data to your backend
+        setIsCreating(true);
+
+        try {
+            // Convert duration string to number based on the select values
+            let durationNumber = 1;
+            switch (duration) {
+                case "1-week":
+                    durationNumber = 1;
+                    break;
+                case "2-weeks":
+                    durationNumber = 2;
+                    break;
+                case "1-month":
+                    durationNumber = 4; // 4 weeks
+                    break;
+                case "3-months":
+                    durationNumber = 12; // 12 weeks
+                    break;
+                case "6-months":
+                    durationNumber = 24; // 24 weeks
+                    break;
+                case "1-year":
+                    durationNumber = 52; // 52 weeks
+                    break;
+                default:
+                    // Fallback: try to extract number from string
+                    durationNumber = parseInt(duration.match(/\d+/)?.[0] || "1");
+            }
+            
+            // Prepare course data according to backend schema
+            const courseData: CourseCreateData = {
+                title: courseName,
+                description: courseDescription || "No description provided",
+                instructor_id: "current_user_id", // You'll need to get this from user context
+                tags: addTags, // Backend expects string, not array
+                level: difficultyLevel,
+                objectives: objectives ? objectives.split('\n').map(obj => obj.trim()).filter(obj => obj) : [],
+                estimated_duration: durationNumber, // Backend expects integer (weeks)
+                is_published: false
+            };
+
+            const response = await createCourse(courseData);
+            
+            if (response) {
+                console.log("Course created successfully:", response);
+                toast.success("Course created successfully!");
+                // Navigate to the dashboard
+                navigate('/dashboard');
+            }
+        } catch (error) {
+            console.error("Error creating course:", error);
+            toast.error("Failed to create course. Please try again.");
+        } finally {
+            setIsCreating(false);
+        }
     };
 
     const handleAIGenerate = () => {
@@ -234,10 +290,21 @@ const CreateNewCourse = () => {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <Label htmlFor="objectives" className="text-sm font-medium">Course Objectives</Label>
+                                    <Textarea
+                                        id="objectives"
+                                        placeholder="Enter course objectives (one per line)"
+                                        value={objectives}
+                                        onChange={(e) => setObjectives(e.target.value)}
+                                        className="border-primary/20 focus:border-primary"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="addTags" className="text-sm font-medium">Create Tags for this course * </Label>
                                     <Textarea
-                                        id="learningGoals"
-                                        placeholder="Add tags separated by commas"
+                                        id="addTags"
+                                        placeholder="Add tags separated by commas (e.g., web-development, machine-learning, python, react)"
                                         value={addTags}
                                         onChange={(e) => setTags(e.target.value)}
                                         className="border-primary/20 focus:border-primary"
@@ -290,11 +357,12 @@ const CreateNewCourse = () => {
                     <div className="mt-12 text-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
                         <Button
                             onClick={handleCreateCourse}
+                            disabled={isCreating}
                             size="lg"
-                            className="bg-gradient-primary text-primary-foreground hover:shadow-elegant transition-all duration-300 hover:scale-105 px-12 py-6 text-lg"
+                            className="bg-gradient-primary text-primary-foreground hover:shadow-elegant transition-all duration-300 hover:scale-105 px-12 py-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <BookOpen className="w-5 h-5 mr-2" />
-                            Create My Course
+                            {isCreating ? "Creating Course..." : "Create My Course"}
                         </Button>
                     </div>
                 </div>

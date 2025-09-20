@@ -43,4 +43,20 @@ export async function getCourseById<T = any>(id: string): Promise<T> {
   return api.get<T>(`/courses/${id}`);
 }
 
+export interface CourseCreateData {
+  title: string;
+  description: string;
+  instructor_id: string;
+  tags: string; // Backend expects string, not array
+  level: string;
+  thumbnail?: string;
+  objectives?: string[];
+  estimated_duration: number; // Backend expects integer, not string
+  is_published: boolean;
+}
+
+export async function createCourse(courseData: CourseCreateData): Promise<any> {
+  return api.post('/courses', courseData);
+}
+
 export default api;
