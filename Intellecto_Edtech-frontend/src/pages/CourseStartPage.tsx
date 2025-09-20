@@ -4,16 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Mic, MicOff, Volume2, VolumeX, Play, Pause, Settings, MessageSquare, BookOpen, Brain, Users, Clock, Target, Award } from 'lucide-react';
-
-interface Message {
-    id: string;
-    type: 'bot' | 'user';
-    content: string;
-    timestamp: Date;
-}
+import { ArrowLeft, Volume2, VolumeX, Play, Pause, Settings, BookOpen, Brain, Users, Clock, Target, Award } from 'lucide-react';
+import CourseGeminiChat from '@/components/CourseGeminiChat';
+import type { CourseContext } from '@/lib/gemini';
 
 import { getCourseById } from '@/lib/api';
 
@@ -23,6 +16,7 @@ interface Course {
     description?: string;
     estimated_duration?: number;
     level?: string;
+    tags?: string;
 }
 
 const CourseStartPage = () => {
@@ -32,15 +26,6 @@ const CourseStartPage = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
-    const [userInput, setUserInput] = useState('');
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: '1',
-            type: 'bot',
-            content: 'Welcome to your personalized learning session! I\'m your AI instructor. Today we\'ll be exploring the fundamentals of React development. Are you ready to begin?',
-            timestamp: new Date()
-        }
-    ]);
     const [courseProgress, setCourseProgress] = useState(25);
     const [currentTopic, setCurrentTopic] = useState('Introduction to React Components');
     const [sessionTime, setSessionTime] = useState(0);
@@ -62,34 +47,13 @@ const CourseStartPage = () => {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleSendMessage = () => {
-        if (!userInput.trim()) return;
-
-        const newUserMessage: Message = {
-            id: Date.now().toString(),
-            type: 'user',
-            content: userInput,
-            timestamp: new Date()
-        };
-
-        setMessages(prev => [...prev, newUserMessage]);
-        setUserInput('');
-
-        // Simulate AI response
-        setTimeout(() => {
-            const botResponse: Message = {
-                id: (Date.now() + 1).toString(),
-                type: 'bot',
-                content: `Great question! Let me explain that concept in more detail. ${userInput.includes('component') ? 'Components are the building blocks of React applications...' : 'I understand your point. Let\'s dive deeper into this topic...'}`,
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, botResponse]);
-        }, 1500);
-    };
-
-    const handleVoiceToggle = () => {
-        setIsRecording(!isRecording);
-        // Here you would integrate speech-to-text functionality
+    // Prepare course context for Gemini chat
+    const courseContext: CourseContext = {
+        title: course?.title || currentTopic,
+        description: course?.description || 'Interactive learning session',
+        level: course?.level || 'Intermediate',
+        tags: course?.tags || '',
+        currentTopic: currentTopic,
     };
 
     // Fetch course by id or use location.state.course
@@ -265,102 +229,12 @@ const CourseStartPage = () => {
                         </CardContent>
                     </Card>
 
-                    {/* Right Side - Interactive Content */}
-                    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-elegant flex flex-col">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="flex items-center gap-2">
-                                <MessageSquare className="w-5 h-5 text-primary" />
-                                Interactive Learning Chat
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex-1 flex flex-col min-h-0">
-                            {/* Chat Messages */}
-                            <ScrollArea className="flex-1 mb-4 min-h-[300px]">
-                                <div className="space-y-4 pr-4">
-                                    {messages.map((message) => (
-                                        <div
-                                            key={message.id}
-                                            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                                        >
-                                            <div
-                                                className={`max-w-[80%] p-3 rounded-lg ${message.type === 'user'
-                                                    ? 'bg-primary text-primary-foreground'
-                                                    : 'bg-muted border border-border/50'
-                                                    }`}
-                                            >
-                                                <p className="text-sm">{message.content}</p>
-                                                <p className={`text-xs mt-1 opacity-70`}>
-                                                    {message.timestamp.toLocaleTimeString()}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollArea>
-
-                            {/* Input Area */}
-                            <div className="space-y-3 mt-auto">
-                                <Textarea
-                                    value={userInput}
-                                    onChange={(e) => setUserInput(e.target.value)}
-                                    placeholder="Ask a question or share your thoughts..."
-                                    className="min-h-[80px] resize-none"
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleSendMessage();
-                                        }
-                                    }}
-                                />
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant={isRecording ? "destructive" : "outline"}
-                                            size="sm"
-                                            onClick={handleVoiceToggle}
-                                            className="transition-all duration-300"
-                                        >
-                                            {isRecording ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
-                                            {isRecording ? 'Stop Recording' : 'Voice Input'}
-                                        </Button>
-                                        {isRecording && (
-                                            <div className="flex items-center gap-1">
-                                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                                                <span className="text-xs text-muted-foreground">Recording...</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <Button
-                                        onClick={handleSendMessage}
-                                        disabled={!userInput.trim()}
-                                        className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 transition-all duration-300"
-                                    >
-                                        Send Message
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Quick Actions */}
-                            <div className="mt-4 pt-4 border-t border-border/50">
-                                <p className="text-xs text-muted-foreground mb-2">Quick Actions:</p>
-                                <div className="flex flex-wrap gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => setUserInput("Can you explain this concept again?")}>
-                                        Explain Again
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => setUserInput("I need more examples")}>
-                                        More Examples
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => setUserInput("What's the next topic?")}>
-                                        Next Topic
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => setUserInput("I'm ready for a quiz")}>
-                                        Take Quiz
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
+                    {/* Right Side - Gemini AI Chat */}
+                    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-elegant flex flex-col min-h-[600px]">
+                        <CourseGeminiChat 
+                            courseContext={courseContext}
+                            className="h-full"
+                        />
                     </Card>
                 </div>
             </div>

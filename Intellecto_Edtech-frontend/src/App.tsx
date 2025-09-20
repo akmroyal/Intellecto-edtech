@@ -23,6 +23,7 @@ import Courses from "./pages/Courses";
 import CoursePage from "./pages/Course";
 import MyProgressPage from "./pages/MyProgressPage";
 import SkillGapAnalyzer from "./pages/SkillGapAnalyzer";
+import FloatingGeminiChat from "./components/FloatingGeminiChat";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
           />
           {/* New Course Creation Page */}
           <Route path="/create-course" element={<CreateNewCourse />} />
+          <Route path="/create-new-course" element={<CreateNewCourse />} />
     
           <Route path="/course-start" element={<CourseStartPage />} />
           <Route path="/course-start/:id" element={<CourseStartPage />} />
@@ -93,7 +95,6 @@ const App = () => (
           <Route path="/my-progress" element={<MyProgressPage />} />
 
           <Route path="/skill-gap-anlyzer" element={<SkillGapAnalyzer />} />
-
 
           {/* ATS Checker Page */}
           <Route 
@@ -119,6 +120,9 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        
+        {/* Global Floating AI Chat - Available on all pages */}
+        <FloatingGeminiChat />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
