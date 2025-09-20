@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import api from '@/lib/api';
 import { auth } from '@/components/auth/firebase';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Bell, Search, Settings, User, LogOut, Tag, Download, FileText } from 'lucide-react';
@@ -295,6 +296,15 @@ const TestYourKnowledge: React.FC = () => {
     setResults((r) => {
       const updated = [result, ...r].slice(0, 10);
       try { saveToStorage(STORAGE_KEYS.results, updated); } catch (e) { /* ignore */ }
+      // attempt sending result to backend (best-effort)
+      (async () => {
+        try {
+          await api.post('/results', result);
+        } catch (e) {
+          // ignore network errors - data is already in localStorage
+          // console.warn('Failed to send result to backend', e);
+        }
+      })();
       return updated;
     });
     // keep review data so user stays in the same block and can see answers
