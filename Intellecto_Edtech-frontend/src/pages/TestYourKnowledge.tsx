@@ -107,6 +107,9 @@ const TestYourKnowledge: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
+  const [reviewTest, setReviewTest] = useState<Test | null>(null);
+  const [reviewResult, setReviewResult] = useState<Result | null>(null);
+  const [reviewAnswers, setReviewAnswers] = useState<(number | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [runningStart, setRunningStart] = useState<number | null>(null);
 
@@ -131,7 +134,6 @@ const TestYourKnowledge: React.FC = () => {
       finishTest();
     }
     return () => { if (timer) clearInterval(timer); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runningTest, timeLeft]);
 
   const mockGenerateQuestions = (topic: string, count: number): Question[] => {
@@ -192,6 +194,8 @@ const TestYourKnowledge: React.FC = () => {
     const totalTime = Math.max(30, test.questions.length * 45);
     setTimeLeft(totalTime);
     setRunningStart(Date.now());
+    // lock scroll and move to top
+    document.body.style.overflow = 'hidden';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -229,8 +233,16 @@ const TestYourKnowledge: React.FC = () => {
       date: new Date().toISOString(),
       timeTakenSec: timeTaken,
     };
-    setResults((r) => [result, ...r].slice(0, 10));
-    // reset runner
+    setResults((r) => {
+      const updated = [result, ...r].slice(0, 10);
+      try { saveToStorage(STORAGE_KEYS.results, updated); } catch (e) { /* ignore */ }
+      return updated;
+    });
+    // keep review data so user stays in the same block and can see answers
+    setReviewTest(runningTest);
+    setReviewResult(result);
+    setReviewAnswers(answers);
+    // reset runner UI state but keep overlay open (overflow remains locked)
     setRunningTest(null);
     setCurrentIndex(0);
     setSelected(null);
@@ -239,10 +251,60 @@ const TestYourKnowledge: React.FC = () => {
     setRunningStart(null);
   };
 
+  const closeReview = () => {
+    setReviewTest(null);
+    setReviewResult(null);
+    setReviewAnswers([]);
+    // restore scrolling
+    document.body.style.overflow = '';
+  };
+
+  const downloadCSVForReview = (res: Result, test: Test, ans: (number | null)[]) => {
+    const rows = ['question,chosen,chosenIndex,correct,correctIndex,isCorrect'];
+    test.questions.forEach((q, idx) => {
+      const chosenIdx = ans[idx];
+      const chosen = chosenIdx !== null && chosenIdx !== undefined ? q.options[chosenIdx] : '';
+      const correct = q.options[q.correctIndex];
+      const isCorrect = chosenIdx === q.correctIndex ? 'true' : 'false';
+      rows.push(`"${q.text.replace(/"/g, '""')}","${chosen.replace(/"/g, '""')}",${chosenIdx ?? ''},"${correct.replace(/"/g, '""')}",${q.correctIndex},${isCorrect}`);
+    });
+    rows.push(`Total,${res.score},, ,${res.total},`);
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${res.testTitle.replace(/\s+/g, '_')}_result.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadPDFForReview = (res: Result, test: Test, ans: (number | null)[]) => {
+    // Create a printable HTML and open print dialog so user can save as PDF
+    const style = `body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif;color:#0f172a} .q{margin-bottom:12px;padding:8px;border-radius:6px} .correct{background:#ecfccb} .wrong{background:#fee2e2}`;
+    let html = `<!doctype html><html><head><meta charset="utf-8"><title>${res.testTitle}</title><style>${style}</style></head><body>`;
+    html += `<h1>${res.testTitle}</h1><div><strong>Score:</strong> ${res.score}/${res.total}</div><div><strong>Time:</strong> ${res.timeTakenSec}s</div><hr/>`;
+    test.questions.forEach((q, idx) => {
+      const chosenIdx = ans[idx];
+      const chosen = chosenIdx !== null && chosenIdx !== undefined ? q.options[chosenIdx] : '(no answer)';
+      const correct = q.options[q.correctIndex];
+      const isCorrect = chosenIdx === q.correctIndex;
+      html += `<div class="q ${isCorrect ? 'correct' : 'wrong'}"><div><strong>Q${idx+1}.</strong> ${q.text}</div><div><strong>Your answer:</strong> ${chosen}</div><div><strong>Correct:</strong> ${correct}</div></div>`;
+    });
+    html += `</body></html>`;
+    const w = window.open('', '_blank');
+    if (!w) return; // popup blocked
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    // give the browser a moment then call print
+    setTimeout(() => { try { w.print(); } catch (e) { /* ignore */ } }, 400);
+  };
+
   const cancelRun = () => {
     setRunningTest(null);
     setTimeLeft(0);
     setRunningStart(null);
+    document.body.style.overflow = '';
   };
 
   const availableTests = useMemo(() => {
@@ -256,7 +318,6 @@ const TestYourKnowledge: React.FC = () => {
       difficulty: 'Easy' as const,
       questions: mockGenerateQuestions(t, 3),
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tests]);
 
   const analytics = useMemo(() => {
@@ -332,17 +393,17 @@ const TestYourKnowledge: React.FC = () => {
           </div>
         </div>
 
-  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Course Generator */}
-          <div className="glass rounded-xl p-6 animate-fade-up">
+          <div className="glass rounded-xl p-6 animate-fade-up lg:col-span-4 flex flex-col justify-between w-full">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-foreground">Course Generator</h3>
               <Tag className="w-5 h-5 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground mb-3">Enter tags (comma separated) like <code>#react,#data-structures,#cloud-native</code> to generate a tailored course outline.</p>
-            <input value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} placeholder="#web-dev, #react" className="w-full mt-2 mb-3 input" />
+            <input value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} placeholder="#web-dev, #react" className="w-full mt-2 mb-3 input border border-border rounded px-3 py-2 bg-card placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
             <div className="flex space-x-2 mb-4">
-              <button className="btn btn-primary" onClick={() => {
+              <button className="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/60" onClick={() => {
                 // simple generator: split tags and create 3 modules
                 const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
                 const course = {
@@ -357,7 +418,7 @@ const TestYourKnowledge: React.FC = () => {
                 };
                 setGeneratedCourse(course);
               }}>Generate</button>
-              <button className="btn" onClick={() => { setTagsInput(''); setGeneratedCourse(null); }}>Clear</button>
+              <button className="px-4 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={() => { setTagsInput(''); setGeneratedCourse(null); }}>Clear</button>
             </div>
 
             {generatedCourse && (
@@ -368,8 +429,8 @@ const TestYourKnowledge: React.FC = () => {
                     <div className="text-xs text-muted-foreground">{generatedCourse.tags.join(', ') || '—'}</div>
                   </div>
                   <div className="flex items-center space-x-2">
-                      <button className="btn btn-secondary" onClick={() => navigate('/interview-window')}>Launch AI Professor</button>
-                      <button className="btn" onClick={() => enrollCourse(generatedCourse)}>Enroll</button>
+                      <button className="px-3 py-2 rounded-md bg-secondary text-foreground hover:bg-secondary/90" onClick={() => navigate('/interview-window')}>Launch AI Professor</button>
+                      <button className="px-3 py-2 rounded-md bg-primary text-white hover:bg-primary/90" onClick={() => enrollCourse(generatedCourse)}>Enroll</button>
                     </div>
                 </div>
                 <div className="mt-3 space-y-2">
@@ -386,7 +447,7 @@ const TestYourKnowledge: React.FC = () => {
           </div>
 
           {/* Enrolled Courses */}
-          <div className="glass rounded-xl p-6 animate-fade-up">
+          <div className="glass rounded-xl p-6 animate-fade-up lg:col-span-4 flex flex-col justify-between w-full">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-foreground">Enrolled Courses</h3>
             </div>
@@ -401,7 +462,7 @@ const TestYourKnowledge: React.FC = () => {
                       <div className="text-xs text-muted-foreground">{c.tags.join(', ')}</div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <button className="btn" onClick={() => setSelectedCourseId(c.id)}>View Tests</button>
+                      <button className="px-3 py-2 rounded-md bg-secondary text-foreground hover:bg-secondary/90" onClick={() => setSelectedCourseId(c.id)}>View Tests</button>
                     </div>
                   </div>
                 ))}
@@ -410,34 +471,34 @@ const TestYourKnowledge: React.FC = () => {
           </div>
 
           {/* Create test (moved) */}
-          <div className="glass rounded-xl p-6 animate-fade-up">
+          <div className="glass rounded-xl p-6 animate-fade-up lg:col-span-4 flex flex-col justify-between w-full">
             <h3 className="text-lg font-semibold text-foreground mb-3">Create Custom Test</h3>
             <label className="text-sm text-muted-foreground">Title</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full mt-2 mb-3 input border border-border rounded px-3 py-2 bg-card" />
+            <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full mt-2 mb-3 input border border-border rounded px-3 py-2 bg-card placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
 
             <label className="text-sm text-muted-foreground">Topic</label>
-            <select value={topic} onChange={(e) => setTopic(e.target.value)} className="w-full mt-2 mb-3 select border border-border rounded px-3 py-2 bg-card">
+            <select value={topic} onChange={(e) => setTopic(e.target.value)} className="w-full mt-2 mb-3 select border border-border rounded px-3 py-2 bg-card placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50">
               {DEFAULT_TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
 
             <label className="text-sm text-muted-foreground">Difficulty</label>
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value as Test['difficulty'])} className="w-full mt-2 mb-3 select border border-border rounded px-3 py-2 bg-card">
+            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value as Test['difficulty'])} className="w-full mt-2 mb-3 select border border-border rounded px-3 py-2 bg-card placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50">
               <option>Easy</option>
               <option>Medium</option>
               <option>Hard</option>
             </select>
 
             <label className="text-sm text-muted-foreground">Number of Questions</label>
-            <input type="number" value={numQuestions} min={1} max={20} onChange={(e) => setNumQuestions(Number(e.target.value))} className="w-full mt-2 mb-4 input border border-border rounded px-3 py-2 bg-card" />
+            <input type="number" value={numQuestions} min={1} max={20} onChange={(e) => setNumQuestions(Number(e.target.value))} className="w-full mt-2 mb-4 input border border-border rounded px-3 py-2 bg-card placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
 
             <div className="flex space-x-3">
-              <button className="btn btn-primary" onClick={handleCreateTest}>Create Test</button>
-              <button className="btn" onClick={() => { setTitle(''); setNumQuestions(3); setTopic(DEFAULT_TOPICS[0]); setDifficulty('Easy'); }}>Reset</button>
+              <button className="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/60" onClick={handleCreateTest}>Create Test</button>
+              <button className="px-4 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={() => { setTitle(''); setNumQuestions(3); setTopic(DEFAULT_TOPICS[0]); setDifficulty('Easy'); }}>Reset</button>
             </div>
           </div>
 
           {/* Middle (expanded): Available tests / runner */}
-          <div className={`glass rounded-xl p-6 col-span-2 animate-fade-up ${runningTest ? 'col-span-3 lg:col-span-4' : ''}`}>
+          <div className={`glass rounded-xl p-6 lg:col-span-8 animate-fade-up`}>
             {!runningTest && (
               <>
                 <h3 className="text-lg font-semibold text-foreground mb-3">Available Tests</h3>
@@ -449,8 +510,8 @@ const TestYourKnowledge: React.FC = () => {
                           <h4 className="font-semibold text-foreground">{t.title}</h4>
                           <p className="text-xs text-muted-foreground">{t.topic} • {t.difficulty} • {t.questions.length} Q</p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <button className="btn btn-primary" onClick={() => startTest(t)}>Take Test</button>
+                          <div className="flex items-center space-x-2">
+                          <button className="px-3 py-2 rounded-md bg-primary text-white hover:bg-primary/90" onClick={() => startTest(t)}>Take Test</button>
                         </div>
                       </div>
                     </div>
@@ -459,7 +520,7 @@ const TestYourKnowledge: React.FC = () => {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-lg font-semibold text-foreground">Recent Results</h3>
                   <div className="flex items-center space-x-2">
-                    <button className="btn" onClick={() => {
+                    <button className="px-3 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={() => {
                       // export JSON
                       const data = { tests, results };
                       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -470,7 +531,7 @@ const TestYourKnowledge: React.FC = () => {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}><Download className="w-4 h-4 inline-block mr-2"/> Export</button>
-                    <button className="btn" onClick={() => {
+                    <button className="px-3 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={() => {
                       // CSV of results
                       const rows = ['testTitle,date,score,total,timeTakenSec'];
                       results.forEach(r => rows.push(`${r.testTitle},${r.date},${r.score},${r.total},${r.timeTakenSec}`));
@@ -499,8 +560,19 @@ const TestYourKnowledge: React.FC = () => {
               </>
             )}
 
+            {/* runningTest is displayed in a full-screen overlay to keep focus */}
+          </div>
+
+          {/* Right column folded into middle on large screens; keep layout responsive */}
+        </div>
+      </main>
+      {/* Full-screen focused test overlay */}
+      {(runningTest || reviewTest) && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-6 bg-black/40">
+          <div className="w-full max-w-4xl glass rounded-xl p-6 overflow-y-auto max-h-[90vh]">
+            {/* Live running test */}
             {runningTest && (
-              <div>
+              <>
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">{runningTest.title}</h3>
@@ -518,7 +590,7 @@ const TestYourKnowledge: React.FC = () => {
                     {runningTest.questions[currentIndex].options.map((opt, idx) => {
                       const chosen = answers[currentIndex] === idx;
                       return (
-                        <button key={idx} onClick={() => selectAnswer(idx)} className={`text-left p-3 rounded-lg border ${chosen ? 'border-primary bg-primary/10' : 'border-border'} transition-colors`}>
+                        <button key={idx} onClick={() => selectAnswer(idx)} className={`text-left p-3 rounded-lg border w-full ${chosen ? 'border-primary bg-primary/10' : 'border-border'} transition-colors`}>
                           {opt}
                         </button>
                       );
@@ -528,18 +600,59 @@ const TestYourKnowledge: React.FC = () => {
                   <div className="flex items-center justify-between mt-4">
                     <div className="text-sm text-muted-foreground">Answered: {answers.filter((a) => a !== null).length}/{runningTest.questions.length}</div>
                     <div className="space-x-2">
-                      <button className="btn" onClick={cancelRun}>Cancel</button>
-                      <button className="btn btn-primary" onClick={nextQuestion}>{currentIndex < runningTest.questions.length - 1 ? 'Next' : 'Finish'}</button>
+                      <button className="px-3 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={() => { cancelRun(); }} aria-label="Stop test">Stop</button>
+                      <button className="px-3 py-2 rounded-md bg-primary text-white hover:bg-primary/90" onClick={nextQuestion}>{currentIndex < runningTest.questions.length - 1 ? 'Next' : 'Finish'}</button>
                     </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Review mode after finishing */}
+            {reviewTest && reviewResult && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">{reviewTest.title} — Review</h3>
+                    <p className="text-sm text-muted-foreground">{reviewTest.topic} • Reviewed on {new Date(reviewResult.date).toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-xl font-bold ${reviewResult.score / reviewResult.total >= 0.6 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {reviewResult.score}/{reviewResult.total} ({Math.round((reviewResult.score / reviewResult.total) * 100)}%)
+                    </div>
+                    <div className="text-sm text-muted-foreground">Time: {reviewResult.timeTakenSec}s</div>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  {reviewTest.questions.map((q, idx) => {
+                    const chosenIdx = reviewAnswers[idx];
+                    const isCorrect = chosenIdx === q.correctIndex;
+                    return (
+                      <div key={q.id} className={`p-3 mb-3 rounded-lg border ${isCorrect ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'}`}>
+                        <div className="font-medium text-foreground">Q{idx + 1}. {q.text}</div>
+                        <div className="text-sm text-muted-foreground mt-2">Your answer: <span className="font-semibold">{chosenIdx !== null && chosenIdx !== undefined ? q.options[chosenIdx] : '—'}</span></div>
+                        <div className="text-sm text-muted-foreground">Correct answer: <span className="font-semibold">{q.options[q.correctIndex]}</span></div>
+                        <div className={`mt-2 inline-block px-2 py-1 rounded text-sm font-semibold ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>{isCorrect ? 'Correct' : 'Incorrect'}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-x-2">
+                    <button className="px-3 py-2 rounded-md bg-primary text-white hover:bg-primary/90" onClick={() => { if (reviewResult && reviewTest) downloadCSVForReview(reviewResult, reviewTest, reviewAnswers); }}>Download CSV</button>
+                    <button className="px-3 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={() => { if (reviewResult && reviewTest) downloadPDFForReview(reviewResult, reviewTest, reviewAnswers); }}>Download PDF</button>
+                  </div>
+                  <div>
+                    <button className="px-3 py-2 rounded-md border border-border bg-card hover:bg-accent/30" onClick={closeReview}>Close</button>
                   </div>
                 </div>
               </div>
             )}
           </div>
-
-          {/* Right column folded into middle on large screens; keep layout responsive */}
         </div>
-      </main>
+      )}
     </div>
   );
 };
