@@ -41,25 +41,85 @@ type Result = {
 
 const DEFAULT_TOPICS = ['Algorithms', 'Data Structures', 'JavaScript', 'System Design'];
 
-// small question pools for mock generation
 const QUESTION_POOL: Record<string, Question[]> = {
   Algorithms: [
     { id: 'alg-1', text: 'What is the time complexity of binary search?', options: ['O(n)', 'O(log n)', 'O(n log n)', 'O(1)'], correctIndex: 1 },
     { id: 'alg-2', text: 'Which sorting algorithm is stable?', options: ['QuickSort', 'MergeSort', 'HeapSort', 'SelectionSort'], correctIndex: 1 },
+    { id: 'alg-3', text: 'What is the worst-case time complexity of QuickSort?', options: ['O(n)', 'O(log n)', 'O(n²)', 'O(n log n)'], correctIndex: 2 },
+    { id: 'alg-4', text: 'Which algorithm uses a divide and conquer approach?', options: ['Bubble Sort', 'Insertion Sort', 'Merge Sort', 'Selection Sort'], correctIndex: 2 },
+    { id: 'alg-5', text: 'What data structure is typically used in Dijkstra\'s algorithm?', options: ['Stack', 'Queue', 'Priority Queue', 'Linked List'], correctIndex: 2 },
+    { id: 'alg-6', text: 'Which algorithm finds the shortest path between all pairs of nodes?', options: ['Dijkstra', 'Bellman-Ford', 'Floyd-Warshall', 'A*'], correctIndex: 2 },
+    { id: 'alg-7', text: 'What is the time complexity of inserting an element into a heap?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], correctIndex: 1 },
+    { id: 'alg-8', text: 'Which searching algorithm requires the data to be sorted?', options: ['Linear Search', 'Binary Search', 'Interpolation Search', 'Both Binary and Interpolation'], correctIndex: 3 },
+    { id: 'alg-9', text: 'What is the main advantage of using dynamic programming?', options: ['Reduces time complexity', 'Reduces space complexity', 'Avoids recomputation', 'Simplifies code'], correctIndex: 2 },
+    { id: 'alg-10', text: 'Which algorithm is used for cycle detection in graphs?', options: ['Dijkstra', 'Floyd\'s Cycle Finding', 'Kruskal', 'Prim'], correctIndex: 1 },
+    { id: 'alg-11', text: 'What is the time complexity of the Knuth-Morris-Pratt algorithm?', options: ['O(n)', 'O(n log n)', 'O(n + m)', 'O(n²)'], correctIndex: 2 },
+    { id: 'alg-12', text: 'Which algorithm is not used for finding minimum spanning trees?', options: ['Prim', 'Kruskal', 'Dijkstra', 'Borůvka'], correctIndex: 2 },
+    { id: 'alg-13', text: 'What is the space complexity of recursive Fibonacci without memoization?', options: ['O(1)', 'O(n)', 'O(2ⁿ)', 'O(n²)'], correctIndex: 1 },
+    { id: 'alg-14', text: 'Which sorting algorithm has the best worst-case time complexity?', options: ['QuickSort', 'MergeSort', 'HeapSort', 'BubbleSort'], correctIndex: 1 },
+    { id: 'alg-15', text: 'What technique does the Fibonacci heap use for efficient operations?', options: ['Lazy deletion', 'Amortized analysis', 'Memoization', 'Backtracking'], correctIndex: 1 },
+    { id: 'alg-16', text: 'Which algorithm is used for solving the N-Queens problem?', options: ['Dynamic Programming', 'Greedy Algorithm', 'Backtracking', 'Divide and Conquer'], correctIndex: 2 },
+    { id: 'alg-17', text: 'What is the time complexity of the Sieve of Eratosthenes?', options: ['O(n)', 'O(n log n)', 'O(n log log n)', 'O(n²)'], correctIndex: 2 }
   ],
   'Data Structures': [
     { id: 'ds-1', text: 'Which data structure uses LIFO?', options: ['Queue', 'Stack', 'Tree', 'Graph'], correctIndex: 1 },
     { id: 'ds-2', text: 'A hash table provides average-case lookup time of?', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n log n)'], correctIndex: 0 },
+    { id: 'ds-3', text: 'Which data structure is best for implementing a priority queue?', options: ['Array', 'Linked List', 'Heap', 'Stack'], correctIndex: 2 },
+    { id: 'ds-4', text: 'What is the time complexity of searching in a balanced BST?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], correctIndex: 1 },
+    { id: 'ds-5', text: 'Which data structure uses the FIFO principle?', options: ['Stack', 'Queue', 'Tree', 'Graph'], correctIndex: 1 },
+    { id: 'ds-6', text: 'What is the main advantage of a doubly linked list over a singly linked list?', options: ['Less memory', 'Faster insertion', 'Bidirectional traversal', 'Easier implementation'], correctIndex: 2 },
+    { id: 'ds-7', text: 'Which data structure is typically used for implementing recursion?', options: ['Queue', 'Stack', 'Tree', 'Hash Table'], correctIndex: 1 },
+    { id: 'ds-8', text: 'What is the worst-case time complexity of searching in a hash table?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'], correctIndex: 2 },
+    { id: 'ds-9', text: 'Which of these is a self-balancing binary search tree?', options: ['AVL Tree', 'Binary Heap', 'Trie', 'B-tree'], correctIndex: 0 },
+    { id: 'ds-10', text: 'What is the time complexity of inserting at the end of a dynamic array?', options: ['O(1) amortized', 'O(log n)', 'O(n)', 'O(n²)'], correctIndex: 0 },
+    { id: 'ds-11', text: 'Which data structure is used for implementing a dictionary?', options: ['Stack', 'Queue', 'Hash Table', 'Linked List'], correctIndex: 2 },
+    { id: 'ds-12', text: 'What is the space complexity of a adjacency matrix for a graph with n vertices?', options: ['O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)'], correctIndex: 2 },
+    { id: 'ds-13', text: 'Which data structure is efficient for prefix searches?', options: ['Hash Table', 'Binary Search Tree', 'Trie', 'Heap'], correctIndex: 2 },
+    { id: 'ds-14', text: 'What is the height of a complete binary tree with n nodes?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], correctIndex: 1 },
+    { id: 'ds-15', text: 'Which data structure is used in breadth-first search?', options: ['Stack', 'Queue', 'Priority Queue', 'Heap'], correctIndex: 1 },
+    { id: 'ds-16', text: 'What is the main disadvantage of adjacency list representation of graphs?', options: ['Slow to add vertices', 'Slow to check edge existence', 'Uses more memory', 'Difficult to implement'], correctIndex: 1 },
+    { id: 'ds-17', text: 'Which data structure would be best for an LRU cache implementation?', options: ['Stack and Queue', 'Hash Table and Doubly Linked List', 'Two Arrays', 'Binary Search Tree'], correctIndex: 1 }
   ],
   JavaScript: [
     { id: 'js-1', text: 'Which keyword declares a block-scoped variable?', options: ['var', 'let', 'function', 'const (not block-scoped)'], correctIndex: 1 },
     { id: 'js-2', text: 'What is a Promise in JS?', options: ['A value', 'An eventually-resolved value', 'A function', 'A loop construct'], correctIndex: 1 },
+    { id: 'js-3', text: 'What does the "this" keyword refer to in a method?', options: ['The function itself', 'The global object', 'The object that owns the method', 'The parent object'], correctIndex: 2 },
+    { id: 'js-4', text: 'Which method creates a new array with results of calling a function?', options: ['forEach()', 'map()', 'reduce()', 'filter()'], correctIndex: 1 },
+    { id: 'js-5', text: 'What is the purpose of the "use strict" directive?', options: ['Enforces stricter type checking', 'Enables faster execution', 'Enforces stricter parsing and error handling', 'Enables ES6 features'], correctIndex: 2 },
+    { id: 'js-6', text: 'What is a closure in JavaScript?', options: ['A function that has no name', 'A function that returns another function', 'A function with access to its outer scope', 'A function that is passed as an argument'], correctIndex: 2 },
+    { id: 'js-7', text: 'Which method is used to handle fulfilled promises?', options: ['then()', 'catch()', 'finally()', 'resolve()'], correctIndex: 0 },
+    { id: 'js-8', text: 'What does JSON.stringify() do?', options: ['Parses JSON string', 'Converts object to JSON string', 'Validates JSON', 'Stringifies functions'], correctIndex: 1 },
+    { id: 'js-9', text: 'What is the difference between == and ===?', options: ['No difference', '=== checks value and type', '== checks value and type', '=== allows type coercion'], correctIndex: 1 },
+    { id: 'js-10', text: 'Which symbol is used for template literals?', options: ['Single quotes', 'Double quotes', 'Backticks', 'Dollar sign'], correctIndex: 2 },
+    { id: 'js-11', text: 'What does the spread operator (...) do?', options: ['Expands iterables', 'Compresses arrays', 'Creates new objects', 'Spreads function arguments'], correctIndex: 0 },
+    { id: 'js-12', text: 'Which method adds elements to the end of an array?', options: ['push()', 'pop()', 'shift()', 'unshift()'], correctIndex: 0 },
+    { id: 'js-13', text: 'What is the purpose of the async keyword?', options: ['Makes function synchronous', 'Makes function return a promise', 'Handles errors', 'Improves performance'], correctIndex: 1 },
+    { id: 'js-14', text: 'Which method returns the first element that matches a selector?', options: ['querySelector()', 'querySelectorAll()', 'getElementById()', 'getElementsByClassName()'], correctIndex: 0 },
+    { id: 'js-15', text: 'What is event bubbling in JavaScript?', options: ['Events start from target and propagate upward', 'Events start from document and go to target', 'Multiple events fire simultaneously', 'Events are canceled before reaching target'], correctIndex: 0 },
+    { id: 'js-16', text: 'Which method creates a new array with all elements that pass a test?', options: ['map()', 'filter()', 'reduce()', 'forEach()'], correctIndex: 1 },
+    { id: 'js-17', text: 'What is the purpose of the bind() method?', options: ['Binds events to elements', 'Creates a new function with specific this value', 'Binds variables to functions', 'Connects two functions together'], correctIndex: 1 }
   ],
   'System Design': [
     { id: 'sd-1', text: 'CDNs are used primarily for?', options: ['Security', 'Latency reduction', 'Authentication', 'Database sharding'], correctIndex: 1 },
     { id: 'sd-2', text: 'A load balancer helps with?', options: ['Scaling', 'Storage', 'Sorting', 'Compiling'], correctIndex: 0 },
+    { id: 'sd-3', text: 'What is the purpose of database indexing?', options: ['To reduce storage', 'To improve query performance', 'To enforce data integrity', 'To backup data'], correctIndex: 1 },
+    { id: 'sd-4', text: 'Which caching strategy writes to cache and database simultaneously?', options: ['Write-through', 'Write-back', 'Write-around', 'Cache-aside'], correctIndex: 0 },
+    { id: 'sd-5', text: 'What is the CAP theorem?', options: ['A database consistency model', 'A theorem about distributed systems', 'A network protocol', 'A security principle'], correctIndex: 1 },
+    { id: 'sd-6', text: 'What does ACID stand for in databases?', options: ['Atomicity, Consistency, Isolation, Durability', 'Availability, Consistency, Integrity, Durability', 'Atomicity, Concurrency, Isolation, Durability', 'Automation, Consistency, Integration, Durability'], correctIndex: 0 },
+    { id: 'sd-7', text: 'Which protocol is used for stateless authentication?', options: ['OAuth', 'JWT', 'SSL', 'TCP'], correctIndex: 1 },
+    { id: 'sd-8', text: 'What is the purpose of message queues?', options: ['To store emails', 'To decouple system components', 'To prioritize network traffic', 'To manage database connections'], correctIndex: 1 },
+    { id: 'sd-9', text: 'Which database type is best for hierarchical data?', options: ['Relational', 'Document', 'Graph', 'Key-Value'], correctIndex: 2 },
+    { id: 'sd-10', text: 'What is sharding in databases?', options: ['Horizontal partitioning', 'Vertical partitioning', 'Data replication', 'Data compression'], correctIndex: 0 },
+    { id: 'sd-11', text: 'Which is a characteristic of microservices architecture?', options: ['Tight coupling', 'Shared database', 'Independent deployment', 'Monolithic codebase'], correctIndex: 2 },
+    { id: 'sd-12', text: 'What is the purpose of API gateways?', options: ['To secure databases', 'To provide a single entry point for APIs', 'To load balance network traffic', 'To cache API responses'], correctIndex: 1 },
+    { id: 'sd-13', text: 'Which factor is most important for choosing a database?', options: ['Popularity', 'Query patterns', 'Color of logo', 'Programming language'], correctIndex: 1 },
+    { id: 'sd-14', text: 'What is eventual consistency?', options: ['Immediate consistency guarantee', 'Consistency after some time', 'No consistency guarantee', 'Strong consistency model'], correctIndex: 1 },
+    { id: 'sd-15', text: 'Which technique helps with database read scalability?', options: ['Sharding', 'Replication', 'Normalization', 'Indexing'], correctIndex: 1 },
+    { id: 'sd-16', text: 'What is the purpose of circuit breakers in distributed systems?', options: ['To prevent electrical issues', 'To stop cascading failures', 'To break network connections', 'To reset systems'], correctIndex: 1 },
+    { id: 'sd-17', text: 'Which is a NoSQL database type?', options: ['MySQL', 'PostgreSQL', 'MongoDB', 'SQLite'], correctIndex: 2 }
   ],
 };
+
 
 const STORAGE_KEYS = {
   tests: 'it_tests_v1',
