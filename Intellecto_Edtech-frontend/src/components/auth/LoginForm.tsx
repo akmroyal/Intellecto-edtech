@@ -28,6 +28,7 @@ export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     console.log("Login successful:", userCredential.user);
+    
     navigate("/dashboard"); // Redirect to dashboard
   } catch (error: any) {
     console.error("Login error:", error.message);

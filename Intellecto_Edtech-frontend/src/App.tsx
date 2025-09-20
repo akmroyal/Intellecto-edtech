@@ -18,6 +18,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 import CreateNewCourse from "./pages/CreateNewCourse";
 import TestYourKnowledge from "./pages/TestYourKnowledge";
+import CourseStartPage from "./pages/CourseStartPage";
 
 const queryClient = new QueryClient();
 
@@ -79,7 +80,10 @@ const App = () => (
           />
           {/* New Course Creation Page */}
           <Route path="/create-course" element={<CreateNewCourse />} />
+    
+          <Route path="/course-start" element={<CourseStartPage />} />
 
+          {/* ATS Checker Page */}
           <Route 
             path="/ats-checker" 
             element={
