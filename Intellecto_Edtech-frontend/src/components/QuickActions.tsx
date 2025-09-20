@@ -155,7 +155,7 @@ export const QuickActions: React.FC = () => {
       icon: <BarChart3 className="w-8 h-8 text-white" />,
       animatedIcon: <AnalyticsIcon className="w-16 h-16" />,
       delay: '0.3s',
-      onClick: () => console.log('My Progress clicked')
+      onClick: () => navigate("/course-start")
     },
     {
       title: 'Skill Gap Analyzer',
