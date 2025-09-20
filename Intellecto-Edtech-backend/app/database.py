@@ -47,3 +47,43 @@ def get_user_collection():
     if mongodb.database is None:
         raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
     return mongodb.database.get_collection("users")
+
+def get_course_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("courses")
+
+def get_module_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("modules")
+
+def get_lesson_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("lessons")
+
+def get_quiz_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("quizzes")
+
+def get_project_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("projects")
+
+def get_progress_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("progress_tracking")
+
+def get_ai_interaction_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("ai_interactions")
+
+def get_tag_collection():
+    if mongodb.database is None:
+        raise RuntimeError("Database not connected. Call connect_to_mongo() first.")
+    return mongodb.database.get_collection("course_tags")

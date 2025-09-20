@@ -58,6 +58,7 @@ async def create_user(user: UserCreate) -> User:
     hashed_password = get_password_hash(user.password)
     user_dict = user.model_dump()
     user_dict["password"] = hashed_password
+    user_dict.pop("id", None)  # Remove id if present
     
     # Insert user
     result = await collection.insert_one(user_dict)
@@ -75,13 +76,13 @@ async def update_user(user_id: str, user_update: UserUpdate) -> Optional[User]:
         return None
     
     # Check if username or email already exists (if being updated)
-    if user_update.username:
-        existing_user = await get_user_by_username(user_update.username)
+    if "username" in update_data:
+        existing_user = await get_user_by_username(update_data["username"])
         if existing_user and str(existing_user.id) != user_id:
             raise ValueError("Username already taken")
     
-    if user_update.email:
-        existing_user = await get_user_by_email(user_update.email)
+    if "email" in update_data:
+        existing_user = await get_user_by_email(update_data["email"])
         if existing_user and str(existing_user.id) != user_id:
             raise ValueError("Email already taken")
     
