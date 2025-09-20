@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,6 +31,7 @@ import {
 import { toast } from "sonner";
 
 const CreateNewCourse = () => {
+    const navigate = useNavigate();
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
     const [courseName, setCourseName] = useState("");
     const [courseDescription, setCourseDescription] = useState("");
@@ -97,6 +100,17 @@ const CreateNewCourse = () => {
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-background">
+                {/* Back Button Top Left */}
+                <div className="absolute top-6 left-6 z-20">
+                    <button
+                        aria-label="Go back"
+                        onClick={() => navigate(-1)}
+                        className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg border border-border bg-card/80 hover:bg-card transition-colors shadow-sm"
+                    >
+                        <ArrowLeft className="w-4 h-4 text-foreground" />
+                        <span className="text-sm text-foreground">Back</span>
+                    </button>
+                </div>
             {/* Animated Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary-glow/10 to-primary/5 animate-gradient-shift" />
 

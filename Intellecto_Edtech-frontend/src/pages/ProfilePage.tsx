@@ -1,7 +1,9 @@
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import api from '@/lib/api';
+import { auth } from '@/components/auth/firebase';
 
 interface Resume {
     name: string;
@@ -41,15 +43,54 @@ export default function ProfilePage() {
     const profileImageInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
+    interface BackendUser {
+        id: string;
+        username: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        role?: string;
+        profile_picture?: string | null;
+        bio?: string | null;
+        interests?: string | null;
+        skill_level?: string | null;
+        created_at?: string;
+        is_verified?: boolean;
+    }
+
     // Original data states - these will hold the confirmed/saved data
-    const [originalProfileData, setOriginalProfileData] = useState({
-        name: 'Lakshya Saini',
-        title: 'Senior Frontend Developer',
-        email: 'lakshyasainidev@gmail.com',
+    interface OriginalProfileData {
+        name: string;
+        title: string;
+        email: string;
+        phone?: string;
+        location?: string;
+        bio?: string;
+        interests?: string;
+        skill_level?: string;
+    }
+
+    const [originalProfileData, setOriginalProfileData] = useState<OriginalProfileData>({
+        name: 'Learner Name',
+        title: 'Student',
+        email: 'learner@example.com',
         phone: '',
         location: '',
-        bio: 'Passionate frontend developer with 2+ years of experience building responsive and accessible web applications. Specialized in React ecosystem and modern JavaScript frameworks.'
+        bio: 'This learner is exploring courses and interview practice on Intellecto.',
+        interests: 'Web Development, Algorithms',
+        skill_level: 'beginner'
     });
+    const [backendUserId, setBackendUserId] = useState<string | null>(null);
+    interface UserUpdatePayload {
+        username?: string;
+        email?: string;
+        first_name?: string;
+        last_name?: string;
+        profile_picture?: string | null;
+        bio?: string | null;
+        interests?: string | null;
+        skill_level?: string | null;
+    }
     const [originalSkills, setOriginalSkills] = useState<Skill[]>([
         { id: '1', name: 'React', level: 90 },
         { id: '2', name: 'TypeScript', level: 85 },
@@ -239,26 +280,33 @@ export default function ProfilePage() {
         ));
     };
 
-    // Save handler - updates original data (will be extended for Firestore)
+    // Save handler - updates original data and persist to backend (best-effort)
     const handleSaveProfile = async () => {
         try {
-            // Here you would typically send the updated data to your backend
-            // For Firestore integration, you would:
-            // 1. Create a document reference
-            // 2. Update the document with the new data
-            // Example:
-            // await updateDoc(docRef, {
-            //     profileData: editableProfileData,
-            //     skills: editableSkills,
-            //     experiences: editableExperiences,
-            //     educations: editableEducations
-            // });
-
-            // For now, just update the local state
+            // Update local state first
             setOriginalProfileData(editableProfileData);
             setOriginalSkills(editableSkills);
             setOriginalExperiences(editableExperiences);
             setOriginalEducations(editableEducations);
+
+            // Best-effort: send updated profile to backend if we know the backend user id
+            if (backendUserId) {
+                try {
+                    const payload: UserUpdatePayload = {
+                        username: JSON.parse(localStorage.getItem('it_user_meta') || 'null')?.user_name,
+                        email: editableProfileData.email,
+                        first_name: (editableProfileData.name || '').split(' ')[0] || undefined,
+                        last_name: (editableProfileData.name || '').split(' ').slice(1).join(' ') || undefined,
+                        profile_picture: profileImage || undefined,
+                        bio: editableProfileData.bio,
+                        interests: editableProfileData.interests,
+                        skill_level: editableProfileData.skill_level,
+                    };
+                    await api.put(`/users/${backendUserId}`, payload);
+                } catch (err) {
+                    console.warn('Could not save profile to backend:', err);
+                }
+            }
 
             setEditMode(false);
         } catch (error) {
@@ -266,6 +314,36 @@ export default function ProfilePage() {
             // You might want to show an error message to the user here
         }
     };
+
+    // Load profile from backend (best-effort) and merge into originalProfileData
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const stored = localStorage.getItem('it_user_meta');
+                const fallbackEmail = stored ? JSON.parse(stored).email : null;
+                const email = auth.currentUser?.email || fallbackEmail;
+                if (!email) return;
+                const res = await api.get(`/users/by-email?email=${encodeURIComponent(email)}`) as BackendUser;
+                // Map backend fields to local profile structure
+                const backendProfile = {
+                    name: `${res.first_name || ''} ${res.last_name || ''}`.trim() || originalProfileData.name,
+                    title: res.role ? `${res.role.charAt(0).toUpperCase() + res.role.slice(1)}` : originalProfileData.title,
+                    email: res.email || originalProfileData.email,
+                    bio: res.bio || originalProfileData.bio,
+                    interests: res.interests || originalProfileData.interests,
+                    skill_level: res.skill_level || originalProfileData.skill_level,
+                };
+                setOriginalProfileData(prev => ({ ...prev, ...backendProfile }));
+                setEditableProfileData(prev => ({ ...prev, ...backendProfile }));
+                setBackendUserId(res.id || null);
+                if (res.profile_picture) setProfileImage(res.profile_picture);
+            } catch (err) {
+                console.warn('Could not load backend profile:', err);
+            }
+        };
+        loadProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div className="min-h-screen dashboard-body">
@@ -363,7 +441,7 @@ export default function ProfilePage() {
                                             name="title"
                                             value={editableProfileData.title}
                                             onChange={handleInputChange}
-                                            className="text-muted-foreground text-center bg-input text-foreground rounded px-2 py-1 w-full"
+                                            className="text-muted-foreground text-center bg-input rounded px-2 py-1 w-full"
                                         />
                                     </>
                                 ) : (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '../../public/favicon.png';
 import { Bell, Search, Settings, User, LogOut } from 'lucide-react';
 import { DashboardStats } from '../components/DashboardStats';
@@ -7,11 +7,26 @@ import { UpcomingInterviews } from '../components/UpcomingInterviews';
 import { RecentActivity } from '../components/RecentActivity';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { auth } from '@/components/auth/firebase';
+import api from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
-
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const email = auth.currentUser?.email || JSON.parse(localStorage.getItem('it_user_meta') || 'null')?.email;
+        if (!email) return;
+        const res = await api.get(`/users/by-email?email=${encodeURIComponent(email)}`);
+        setProfile(res);
+      } catch (err) {
+        console.warn('Failed to load profile:', err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent">
@@ -61,8 +76,8 @@ export const Dashboard: React.FC = () => {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div className="hidden md:block">
-                    <p className="text-sm font-medium text-foreground">{auth.currentUser?.displayName || auth.currentUser?.email || "User"}</p>
-                    <p className="text-xs text-muted-foreground">Computer Science Student</p>
+                    <p className="text-sm font-medium text-foreground">{profile?.full_name || auth.currentUser?.displayName || auth.currentUser?.email || "User"}</p>
+                    <p className="text-xs text-muted-foreground">{profile?.role ? `${profile.role.charAt(0).toUpperCase() + profile.role.slice(1)} · Student` : 'Computer Science Student'}</p>
                   </div>
                 </div>
               </button>
@@ -80,7 +95,7 @@ export const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8 animate-fade-up">
-          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome, {auth.currentUser?.displayName} 👋</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome, {profile?.full_name || auth.currentUser?.displayName} 👋</h2>
           <p className="text-muted-foreground">Ready to ace your upcoming interviews? Let's get started!</p>
         </div>
 
