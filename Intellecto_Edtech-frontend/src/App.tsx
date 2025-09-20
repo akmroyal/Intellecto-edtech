@@ -19,6 +19,8 @@ import ProfilePage from "./pages/ProfilePage";
 import CreateNewCourse from "./pages/CreateNewCourse";
 import TestYourKnowledge from "./pages/TestYourKnowledge";
 import CourseStartPage from "./pages/CourseStartPage";
+import MyProgressPage from "./pages/MyProgressPage";
+import SkillGapAnalyzer from "./pages/SkillGapAnalyzer";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +84,11 @@ const App = () => (
           <Route path="/create-course" element={<CreateNewCourse />} />
     
           <Route path="/course-start" element={<CourseStartPage />} />
+          
+          <Route path="/my-progress" element={<MyProgressPage />} />
+
+          <Route path="/skill-gap-anlyzer" element={<SkillGapAnalyzer />} />
+
 
           {/* ATS Checker Page */}
           <Route 

@@ -155,7 +155,7 @@ export const QuickActions: React.FC = () => {
       icon: <BarChart3 className="w-8 h-8 text-white" />,
       animatedIcon: <AnalyticsIcon className="w-16 h-16" />,
       delay: '0.3s',
-      onClick: () => navigate("/course-start")
+      onClick: () => navigate("/my-progress")
     },
     {
       title: 'Skill Gap Analyzer',
@@ -163,7 +163,7 @@ export const QuickActions: React.FC = () => {
       icon: <BarChart3 className="w-8 h-8 text-white" />,  // You can swap to another Lucide icon if you prefer
       animatedIcon: <AnalyticsIcon className="w-16 h-16" />,
       delay: '0.4s',
-      onClick: () => navigate("/ats-checker")
+      onClick: () => navigate("/skill-gap-anlyzer")
     }
   ];
 
