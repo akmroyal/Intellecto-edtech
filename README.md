@@ -1,14 +1,14 @@
 <img width="1536" height="1024" alt="ChatGPT Image Sep 21, 2025, 06_13_53 AM" src="https://github.com/user-attachments/assets/ba7e96e5-17d5-446b-8503-11631c5a2157" />
 
 
-# 🎓 Intelloecto AI - AI-Powered EdTech Platform with Interactive 3D AI Professor
+# 🎓 Intelloecto - AI Powered EdTech Platform with Interactive 3D AI Professor
 
 ![Intelloecto
 Badge](https://img.shields.io/badge/Intelloecto-AI--Powered%2520EdTech-blueviolet)
 ![Frontend Badge](https://img.shields.io/badge/Frontend-React-61dafb)
 ![Backend Badge](https://img.shields.io/badge/Backend-FastAPI-009688)
 ![Database Badge](https://img.shields.io/badge/Database-MongoDB-47A248)
-![AI Badge](https://img.shields.io/badge/AI-OpenAI-412991)
+![AI Badge](https://img.shields.io/badge/AI-Gemini-412991)
 
 ------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ learning**, focusing on: - Hands-on learning.\
               │                         │
               ▼                         ▼
     ┌─────────────────┐    ┌──────────────────┐
-    │   Firebase      │    │   OpenAI API     │
+    │   Firebase      │    │   Gemini API     │
     │   Authentication│    │   AI Services    │
     │   Firestore     │    │                  │
     └─────────────────┘    └──────────────────┘
@@ -272,7 +272,6 @@ Intelloecto AI is developed by:\
 - Backend Developers\ Lakshya Saini, Pradeep Soni
 - Frontend Developers\ Akshay Saini, Asutosh Kumar Maurya
 - 3D Designers\ Pranshu Gupta
-- Educational Experts
 
 ------------------------------------------------------------------------
 
