@@ -1,279 +1,92 @@
-<img width="1536" height="1024" alt="ChatGPT Image Sep 21, 2025, 06_13_53 AM" src="https://github.com/user-attachments/assets/ba7e96e5-17d5-446b-8503-11631c5a2157" />
+<img width="1536" height="1024" alt="Futuristic Banner" src="https://github.com/user-attachments/assets/ba7e96e5-17d5-446b-8503-11631c5a2157" />
 
+# Genignite Pre-Hackathon Submission Template  
+*2. The Submission Template for GenIgnite Pre-Hackathon IPEC*  
 
-# 🎓 Intelloecto - AI Powered EdTech Platform with Interactive 3D AI Professor
+<img width="1920" height="480" alt="image" src="https://github.com/user-attachments/assets/979e1c99-2907-463d-a236-5aa585979ee0" />
 
-![Intelloecto
-Badge](https://img.shields.io/badge/Intelloecto-AI--Powered%2520EdTech-blueviolet)
-![Frontend Badge](https://img.shields.io/badge/Frontend-React-61dafb)
-![Backend Badge](https://img.shields.io/badge/Backend-FastAPI-009688)
-![Database Badge](https://img.shields.io/badge/Database-MongoDB-47A248)
-![AI Badge](https://img.shields.io/badge/AI-Gemini-412991)
 
-------------------------------------------------------------------------
-
-## 📖 Introduction
-
-**Intelloecto AI** is a revolutionary educational technology platform
-designed to solve the hardest problems in online learning. By combining
-**state-of-the-art AI**, **immersive 3D visualization**, and **adaptive
-learning systems**, Intelloecto AI delivers **deeply engaging, personalized,
-and skill-oriented experiences**.
-
-At the heart of Intelloecto AI is the **3D AI Professor**, a lifelike,
-interactive instructor capable of delivering contextual explanations,
-guiding learners, and providing real-time project evaluations.
-
-------------------------------------------------------------------------
-
-## 🎯 Problem Statement
-
-Most online education platforms fail to deliver **engaging,
-personalized, and skill-oriented learning experiences**, especially for
-**technically demanding domains**. Traditional platforms rely on passive
-content delivery and lack interactive, hands-on support.
-
-Intelloecto AI solves this by introducing a **3D AI-powered professor**
-that: - Generates **customized courses** using advanced search tags. -
-Offers **real-time technical explanations and troubleshooting**. -
-Provides **hands-on assessments** with instant evaluation. - Delivers
-**granular analytics and personalized learning paths**.
-
-------------------------------------------------------------------------
-
-## ✨ Key Features
-
--   🤖 **AI-Driven Course Generation**\
-    Create structured, multi-module courses using advanced tags
-    (`#web-development`, `#machine-learning`, etc.).
-
--   👨‍🏫 **Interactive 3D AI Professor**\
-    Lifelike professor that delivers interactive lessons, answers
-    technical queries, and adapts to proficiency level.
-
--   🛠️ **Project-Based Assessments**\
-    Real-world projects with detailed evaluation and instant feedback.
-
--   ❓ **Interactive Doubt Resolution**\
-    AI professor resolves even complex, cross-domain technical
-    questions.
-
--   📊 **Progress Tracking & Analytics**\
-    Monitor module completion, assessment scores, and skill mastery.
-
--   📈 **Automated Report Generation**\
-    Comprehensive performance insights with actionable recommendations.
-
-------------------------------------------------------------------------
-
-## 🚀 Objective
-
-Develop an **MVP (Minimum Viable Product)** demonstrating the
-feasibility of **immersive, personalized, and skill-intensive online
-learning**, focusing on: - Hands-on learning.\
-- Advanced customization.\
-- Real-time AI-driven support.
+---
 
-------------------------------------------------------------------------
-
-## 🏗️ System Architecture
+## 1. Problem Statement Name  
+AI-Powered EdTech Platform with Interactive 3D AI Professor  
 
-    Intelloecto AI Architecture:
-    ┌─────────────────┐    ┌──────────────────┐    ┌────────────────┐
-    │   React Frontend│◄──►│   FastAPI Backend│◄──►│   MongoDB      │
-    │   - 3D Avatar   │    │   - AI Processing │    │   Database     │
-    │   - Course UI   │    │   - Business Logic│    │                │
-    │   - Chat Interface│  │   - API Routes    │    │                │
-    └─────────────────┘    └──────────────────┘    └────────────────┘
-              │                         │
-              │                         │
-              ▼                         ▼
-    ┌─────────────────┐    ┌──────────────────┐
-    │   Firebase      │    │   Gemini API     │
-    │   Authentication│    │   AI Services    │
-    │   Firestore     │    │                  │
-    └─────────────────┘    └──────────────────┘
+---
 
-------------------------------------------------------------------------
+## 2. Problem Statement Description  
+Most online education platforms rely on passive video lectures and generic assessments, which fail to deliver personalized, skill-oriented, and engaging learning—especially in technically demanding fields.  
+Our solution, **Intelloecto AI**, introduces a lifelike **3D AI Professor** who provides interactive lessons, real-time technical support, and project-based assessments. Students can generate custom courses using advanced hashtags (e.g., #web-development, #machine-learning, #cloud-native), receive instant evaluations, and track progress through analytics and auto-generated reports.  
 
-## 📁 Project Structure
+---
 
-    Intelloecto-ai/
-    ├── backend/                 # FastAPI Backend
-    │   ├── main.py              # FastAPI app entry point
-    │   ├── models.py            # Pydantic models
-    │   ├── database.py          # MongoDB configuration
-    │   ├── requirements.txt     # Python dependencies
-    │   └── .env                 # Environment variables
-    │
-    ├── frontend/                # React Frontend
-    │   ├── public/              # Static files
-    │   ├── src/
-    │   │   ├── components/      # React components
-    │   │   ├── services/        # API services
-    │   │   │   └── gemini.js
-    │   │   ├── firebase.js      # Firebase config
-    │   │   └── App.js           # Main app component
-    │   ├── package.json         # Node.js dependencies
-    │   └── .env                 # Frontend environment variables
-    │
-    ├── database/                # Database config
-    │   └── setup.js             # MongoDB setup script
-    │
-    └── README.md                # Project documentation
-
-------------------------------------------------------------------------
-
-## 🛠️ Technology Stack
-
-**Frontend**\
-- React (UI framework)\
-- Three.js (3D visualization)\
-- Firebase, MongoDB (authentication, real-time db)\
-- Web Speech API (text-to-speech)
-
-**Backend**\
-- FastAPI (Python API framework)\
-- MongoDB (NoSQL database)\
-- Motor (async driver for MongoDB)\
-- Gemini API (AI interaction & course generation)
-
-------------------------------------------------------------------------
-
-## 🚀 Installation & Setup
+## 3. Project Overview  
+**Intelloecto AI** is an immersive EdTech platform that combines **AI-driven course generation**, **3D visualization**, and **adaptive learning systems**. It empowers students to:  
 
-### Prerequisites
+- Generate structured, niche courses via search tags.  
+- Interact with a lifelike **3D AI Professor** capable of contextual explanations and code walkthroughs.  
+- Solve project-based, real-world assessments with instant evaluation.  
+- Resolve doubts interactively with advanced, domain-specific support.  
+- Monitor learning progress via analytics and automated reports.  
 
--   Node.js v14+\
--   Python v3.8+\
--   MongoDB (local or Atlas)\
--   Gemini API account\
--   Firebase account
-
-### Backend Setup
-
-``` bash
-cd backend
-pip install -r requirements.txt
-```
+---
 
-Set environment variables in `.env`:
+## 4. Architecture  
+**Frontend**: React.js with Three.js (3D AI Professor, Course UI, Chat Interface)  
+**Backend**: FastAPI (Python) – Course APIs, AI processing, and analytics  
+**Database**: MongoDB Atlas  
+**AI Services**: Google Gemini API (NLP, contextual responses), Web Speech API (TTS)  
+**Authentication**: Firebase  
+**Deployment**: Dockerized microservices on Render (backend) & Netlify (frontend)  
 
-``` env
-MONGODB_URL=mongodb://localhost:27017
-GEMINI_API_KEY=gemini_api_key_here
-```
+---
 
-Run backend:
+## 5. Tech Stack  
+- **Frontend**: React.js, Three.js, Firebase, Web Speech API  
+- **Backend**: FastAPI, Python 3.11, Motor (MongoDB driver)  
+- **Database**: MongoDB Atlas  
+- **AI Services**: Google Gemini API, ReadyPlayerMe (3D avatars)  
+- **DevOps**: Versal  
 
-``` bash
-uvicorn main:app --reload
-```
+---
 
-### Frontend Setup
+## 6. Team Name  
+**Tech Over Flow**  
 
-``` bash
-cd frontend
-npm install
-```
+---
 
-Set environment variables in `.env`:
+## 7. Team Members & Details  
 
-``` env
-REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-REACT_APP_API_BASE_URL=http://localhost:8000
-```
+| Name                  | Role                | Email                | LinkedIn | College Name |
+|-----------------------|---------------------|----------------------|----------|--------------|
+| Lakshya Saini         | Backend Developer   | LakshyaSainibtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/lakshya2513saini)   | LIET         |
+| Pradeep Soni          | Backend Developer   | pradeepsoniofficial@gmail.com          | [LinkedIn](https://www.linkedin.com/in/pradeepsoniofficial/)   | LIET         |
+| Akshay Saini          | Frontend Developer  | akshaysainibtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/akshay2513saini)   | LIET         |
+| Asutosh Kumar Maurya  | Frontend Developer  | ashutoshmauryabtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/ashu-maurya-9026xxxx)   | LIET         |
+| Pranshu Gupta         | 3D Designer         | pranshuguptabtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/pranshu-gupta-64b338370)    | LIET         |  
 
-Run frontend:
+---
 
-``` bash
-npm start
-```
+## 8. Additional Links  
+- **GitHub Repository**: [Reference 1_(React Docs)](https://react.dev/learn),  [Reference 2 (MongoDB Docs)](https://www.mongodb.com/docs/atlas/),  [Reference 3_(FastAPI's Docs)](https://fastapi.tiangolo.com/)
+- **Project Demo/Video**:  [Project Demo/Video](https://github.com/user-attachments/assets/c30950f9-6bc3-4770-8f5b-ad130a71b2fd)   
+- **Deployed App**: https://intellecto-edtech.vercel.app/
 
-### Database Setup
+---
 
-``` bash
-mongosh database/setup.js
-```
-
-------------------------------------------------------------------------
-
-## 🎮 Usage
-
--   Generate courses using hashtags (e.g., `#web-development`,
-    `#machine-learning`).\
--   Interact with the **3D AI Professor** through the chat interface.\
--   Complete lessons and projects with instant feedback.\
--   Track progress with detailed analytics.\
--   Ask technical questions and receive real-time answers.
-
-------------------------------------------------------------------------
-
-## 🔧 API Endpoints
-
-**Courses**\
-- `GET /courses`\
-- `GET /courses/{course_id}`\
-- `GET /courses/{course_id}/modules`
-
-**Modules & Lessons**\
-- `GET /modules/{module_id}`\
-- `GET /modules/{module_id}/lessons`\
-- `GET /lessons/{lesson_id}`
-
-**AI Interactions**\
-- `POST /api/ask-professor`\
-- `GET /ai-interactions/{user_id}`
-
-**Progress Tracking**\
-- `GET /progress/{user_id}/{course_id}`\
-- `POST /progress/{user_id}/{course_id}/complete-lesson/{lesson_id}`
-
-------------------------------------------------------------------------
-
-## 🎨 3D AI Professor Implementation
-
--   Three.js for 3D rendering.\
--   ReadyPlayerMe for customizable avatars.\
--   Web Speech API for text-to-speech.\
--   Google Gemini for natural language processing.\
--   Custom animations for lifelike interactions.
-
-------------------------------------------------------------------------
-
-## 🔮 Future Enhancements
-
--   Voice recognition for natural interactions.\
--   VR/AR immersive learning experiences.\
--   Multi-language support.\
--   Advanced skill assessment algorithms.\
--   Social & collaborative learning features.\
--   Mobile application.\
--   Integration with certification programs.
-
-------------------------------------------------------------------------
-
-## 🤝 Contributing
-
-We welcome contributions! Please read our guidelines before submitting
-PRs.
-
-------------------------------------------------------------------------
-
-## 📄 License
-
-Licensed under the **MIT License** -- see the LICENSE file.
-
-------------------------------------------------------------------------
-
-## 🏆 Tech Over Flow Team
-
-Intelloecto AI is developed by:\
-- Backend Developers\ Lakshya Saini, Pradeep Soni
-- Frontend Developers\ Akshay Saini, Asutosh Kumar Maurya
-- 3D Designers\ Pranshu Gupta
-
-------------------------------------------------------------------------
-
-> **Theme:** *"Mastery Through Immersion: Solving the Hardest Problems
-> in Online Learning"*
+## 9. Instructions for Evaluators  
+1. Clone the repository.  
+2. Backend setup:  
+   ```bash
+   cd Intellecto-Edtech-backend
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```  
+3. Frontend setup:  
+   ```bash
+   cd Intellecto_Edtech-frontend
+   npm install
+   npm run dev
+   ```  
+4. Configure `.env` files with MongoDB, Firebase, and Gemini API keys.  
+5. Access the platform via `http://localhost:3000` (frontend) and `http://localhost:8000` (backend).  
+6. Use `/admin` dashboard for evaluator access and API testing.  
