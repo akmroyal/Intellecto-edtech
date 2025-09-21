@@ -524,7 +524,7 @@ const TestYourKnowledge: React.FC = () => {
           </div>
 
           {/* Enrolled Courses */}
-          <div className="glass rounded-xl p-6 animate-fade-up lg:col-span-4 flex flex-col justify-between w-full">
+          {/* <div className="glass rounded-xl p-6 animate-fade-up lg:col-span-4 flex flex-col justify-between w-full">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-foreground">Enrolled Courses</h3>
             </div>
@@ -545,7 +545,7 @@ const TestYourKnowledge: React.FC = () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Create test (moved) */}
           <div className="glass rounded-xl p-6 animate-fade-up lg:col-span-4 flex flex-col justify-between w-full">

@@ -29,6 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 interface CourseGeminiChatProps {
   courseContext: CourseContext;
   className?: string;
+  onAiResponse?: (response: string) => void; // New prop for avatar integration
 }
 
 const MAX_MESSAGES = 100;
@@ -36,7 +37,8 @@ const QUEUE_POPUP_THRESHOLD = 90; // Show popup when approaching limit
 
 const CourseGeminiChat: React.FC<CourseGeminiChatProps> = ({ 
   courseContext, 
-  className = "" 
+  className = "",
+  onAiResponse // Add this new prop
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -135,8 +137,11 @@ const CourseGeminiChat: React.FC<CourseGeminiChatProps> = ({
         content: response,
         timestamp: new Date(),
       };
-
+      
       setMessages(prev => [...prev, assistantMessage]);
+
+      // **NEW: Pass response to avatar for speech and motion**
+      onAiResponse?.(response);
 
     } catch (error) {
       console.error('Error getting Gemini response:', error);
@@ -149,6 +154,9 @@ const CourseGeminiChat: React.FC<CourseGeminiChatProps> = ({
       };
 
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Also trigger avatar for error message
+      onAiResponse?.('Sorry, I encountered an error while processing your request. Please try again.');
       
       toast({
         title: "Chat Error",

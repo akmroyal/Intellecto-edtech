@@ -8,7 +8,6 @@ import { ArrowLeft, Volume2, VolumeX, Play, Pause, Settings, BookOpen, Brain, Us
 import CourseGeminiChat from '@/components/CourseGeminiChat';
 import CourseAvatar from '@/components/CourseAvatar';
 import type { CourseContext } from '@/lib/gemini';
-
 import { getCourseById } from '@/lib/api';
 
 interface Course {
@@ -19,6 +18,7 @@ interface Course {
     level?: string;
     tags?: string;
 }
+
 
 const CourseStartPage = () => {
     const navigate = useNavigate();
@@ -33,6 +33,11 @@ const CourseStartPage = () => {
     const [course, setCourse] = useState<Course | null>(null);
     const [loadingCourse, setLoadingCourse] = useState(false);
     const [courseError, setCourseError] = useState<string | null>(null);
+    
+    // Avatar-specific states
+    const [lastAiResponse, setLastAiResponse] = useState<string>('');
+    const [totalInteractions, setTotalInteractions] = useState(0);
+    const [avatarSpeaking, setAvatarSpeaking] = useState(false);
 
     // Session timer
     useEffect(() => {
@@ -55,6 +60,23 @@ const CourseStartPage = () => {
         level: course?.level || 'Intermediate',
         tags: course?.tags || '',
         currentTopic: currentTopic,
+    };
+
+    // Handle AI responses - this will trigger avatar speech and motion
+    const handleAiResponse = (response: string) => {
+        setLastAiResponse(response);
+        setTotalInteractions(prev => prev + 1);
+        // Update course progress based on interactions
+        setCourseProgress(prev => Math.min(prev + 2, 100));
+    };
+
+    // Avatar speech event handlers
+    const handleAvatarSpeechStart = () => {
+        setAvatarSpeaking(true);
+    };
+
+    const handleAvatarSpeechEnd = () => {
+        setAvatarSpeaking(false);
     };
 
     // Fetch course by id or use location.state.course
@@ -120,7 +142,12 @@ const CourseStartPage = () => {
                             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                                 {currentTopic}{loadingCourse ? ' (loading...)' : ''}
                             </h1>
-                            <p className="text-muted-foreground text-sm">Interactive Learning Session</p>
+                            <p className="text-muted-foreground text-sm">
+                                Interactive Learning Session 
+                                {avatarSpeaking && (
+                                    <span className="ml-2 text-blue-600 animate-pulse">🎙️ Avatar Speaking</span>
+                                )}
+                            </p>
                         </div>
                     </div>
 
@@ -146,13 +173,15 @@ const CourseStartPage = () => {
                     <div className="mb-4 text-sm text-red-600">Failed to load course: {courseError}</div>
                 )}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-full">
-                    {/* Left Side - AI Teacher Bot */}
+                    {/* Left Side - AI Teacher Avatar */}
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-elegant h-fit">
                         <CardHeader className="pb-4">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                                    AI Instructor Live
+                                    <div className={`w-3 h-3 rounded-full ${
+                                        avatarSpeaking ? 'bg-red-500 animate-pulse' : 'bg-green-500 animate-pulse'
+                                    }`} />
+                                    AI Instructor {avatarSpeaking ? 'Speaking' : 'Live'}
                                 </CardTitle>
                                 <div className="flex items-center gap-2">
                                     <Button
@@ -160,6 +189,7 @@ const CourseStartPage = () => {
                                         size="icon"
                                         onClick={() => setIsMuted(!isMuted)}
                                         className="hover:bg-primary/10"
+                                        title={isMuted ? "Unmute Avatar" : "Mute Avatar"}
                                     >
                                         {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                                     </Button>
@@ -168,6 +198,7 @@ const CourseStartPage = () => {
                                         size="icon"
                                         onClick={() => setIsPlaying(!isPlaying)}
                                         className="hover:bg-primary/10"
+                                        title={isPlaying ? "Pause Avatar" : "Resume Avatar"}
                                     >
                                         {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                                     </Button>
@@ -175,6 +206,7 @@ const CourseStartPage = () => {
                                         variant="ghost"
                                         size="icon"
                                         className="hover:bg-primary/10"
+                                        title="Avatar Settings"
                                     >
                                         <Settings className="h-4 w-4" />
                                     </Button>
@@ -182,13 +214,26 @@ const CourseStartPage = () => {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {/* 3D Avatar Component */}
-                            <div className="aspect-video rounded-lg overflow-hidden">
+                            {/* 3D Avatar Component with AI Response Integration */}
+                            <div className="aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
                                 <CourseAvatar 
-                                    courseContext={courseContext}
-                                    initialMessage={`Welcome to ${currentTopic}! I'm your AI instructor and I'm here to help you learn. Feel free to ask me any questions about the course content.`}
+                                    className="h-full"
+                                    aiResponse={lastAiResponse} // Pass AI response for automatic speech
+                                    onSpeechStart={handleAvatarSpeechStart}
+                                    onSpeechEnd={handleAvatarSpeechEnd}
                                 />
                             </div>
+
+                            {/* AI Response Indicator */}
+                            {lastAiResponse && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                        <span className="text-sm font-medium text-blue-700">Latest AI Response</span>
+                                    </div>
+                                    <p className="text-xs text-blue-600 line-clamp-2">{lastAiResponse}</p>
+                                </div>
+                            )}
 
                             {/* Learning Controls */}
                             <div className="grid grid-cols-2 gap-4">
@@ -196,45 +241,62 @@ const CourseStartPage = () => {
                                     <div className="text-center">
                                         <Target className="w-6 h-6 mx-auto mb-2 text-primary" />
                                         <p className="text-sm font-medium">Current Focus</p>
-                                        <p className="text-xs text-muted-foreground mt-1">Component Lifecycle</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {course?.level || 'Component Lifecycle'}
+                                        </p>
                                     </div>
                                 </Card>
                                 <Card className="p-4 bg-primary-glow/5 border-primary-glow/20">
                                     <div className="text-center">
                                         <Award className="w-6 h-6 mx-auto mb-2 text-primary-glow" />
                                         <p className="text-sm font-medium">XP Earned</p>
-                                        <p className="text-xs text-muted-foreground mt-1">+150 Points</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            +{totalInteractions * 25} Points
+                                        </p>
                                     </div>
                                 </Card>
                             </div>
 
-                            {/* Learning Stats */}
+                            {/* Enhanced Learning Stats */}
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-muted-foreground">Comprehension Level</span>
-                                    <Badge variant="secondary">Intermediate</Badge>
+                                    <Badge variant="secondary">{course?.level || 'Intermediate'}</Badge>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">Avatar Interactions</span>
-                                    <span className="text-sm font-medium">7</span>
+                                    <span className="text-sm text-muted-foreground">AI Interactions</span>
+                                    <span className="text-sm font-medium">{totalInteractions}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">Speech Enabled</span>
-                                    <span className="text-sm font-medium text-green-600">✓ Active</span>
+                                    <span className="text-sm text-muted-foreground">Speech Status</span>
+                                    <span className={`text-sm font-medium ${
+                                        avatarSpeaking ? 'text-red-600' : 
+                                        isMuted ? 'text-gray-500' : 'text-green-600'
+                                    }`}>
+                                        {avatarSpeaking ? '🎙️ Speaking' : 
+                                         isMuted ? '🔇 Muted' : '✓ Ready'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">Active Time</span>
+                                    <span className="text-sm text-muted-foreground">Session Duration</span>
                                     <span className="text-sm font-medium">{formatTime(sessionTime)}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-muted-foreground">Course Tags</span>
+                                    <span className="text-xs text-muted-foreground max-w-32 truncate">
+                                        {course?.tags || 'react, components'}
+                                    </span>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Right Side - Gemini AI Chat */}
+                    {/* Right Side - Gemini AI Chat with Avatar Integration */}
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-elegant flex flex-col min-h-[600px]">
                         <CourseGeminiChat 
                             courseContext={courseContext}
                             className="h-full"
+                            onAiResponse={handleAiResponse} // Connect AI responses to avatar
                         />
                     </Card>
                 </div>
