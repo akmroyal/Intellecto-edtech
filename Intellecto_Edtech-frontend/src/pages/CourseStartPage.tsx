@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Volume2, VolumeX, Play, Pause, Settings, BookOpen, Brain, Users, Clock, Target, Award } from 'lucide-react';
 import CourseGeminiChat from '@/components/CourseGeminiChat';
+import CourseAvatar from '@/components/CourseAvatar';
 import type { CourseContext } from '@/lib/gemini';
 
 import { getCourseById } from '@/lib/api';
@@ -181,16 +182,12 @@ const CourseStartPage = () => {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {/* Video Placeholder */}
-                            <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary-glow/10 rounded-lg border border-border/50 flex items-center justify-center relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary-glow/5 animate-pulse" />
-                                <div className="relative z-10 text-center">
-                                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                                        <Brain className="w-8 h-8 text-primary animate-icon-glow" />
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">AI Video Integration Placeholder</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Video stream will be integrated here</p>
-                                </div>
+                            {/* 3D Avatar Component */}
+                            <div className="aspect-video rounded-lg overflow-hidden">
+                                <CourseAvatar 
+                                    courseContext={courseContext}
+                                    initialMessage={`Welcome to ${currentTopic}! I'm your AI instructor and I'm here to help you learn. Feel free to ask me any questions about the course content.`}
+                                />
                             </div>
 
                             {/* Learning Controls */}
@@ -218,8 +215,12 @@ const CourseStartPage = () => {
                                     <Badge variant="secondary">Intermediate</Badge>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">Questions Asked</span>
+                                    <span className="text-sm text-muted-foreground">Avatar Interactions</span>
                                     <span className="text-sm font-medium">7</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-muted-foreground">Speech Enabled</span>
+                                    <span className="text-sm font-medium text-green-600">✓ Active</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-muted-foreground">Active Time</span>
