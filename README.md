@@ -61,7 +61,7 @@ Our solution, **Intelloecto AI**, introduces a lifelike **3D AI Professor** who 
 | Lakshya Saini         | Backend Developer   | LakshyaSainibtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/lakshya2513saini)   | LIET         |
 | Pradeep Soni          | Backend Developer   | pradeepsoniofficial@gmail.com          | [LinkedIn](https://www.linkedin.com/in/pradeepsoniofficial/)   | LIET         |
 | Akshay Saini          | Frontend Developer  | akshaysainibtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/akshay2513saini)   | LIET         |
-| Asutosh Kumar Maurya  | Frontend Developer  | ashutoshmauryabtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/ashu-maurya-9026xxxx)   | LIET         |
+| Ashutosh Maurya  | Frontend Developer  | ashutoshmauryabtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/ashu-maurya-9026xxxx)   | LIET         |
 | Pranshu Gupta         | 3D Designer         | pranshuguptabtechcse22-26@liet.in          | [LinkedIn](https://www.linkedin.com/in/pranshu-gupta-64b338370)    | LIET         |  
 
 ---
